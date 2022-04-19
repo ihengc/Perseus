@@ -4,5 +4,5 @@ package Bitmap
 * @author: Ihc
 * @date: 2022/4/19 0019 17:24
 * @version: 1.0
-* @description:
+* @description: 位图
 *********************************************************/
