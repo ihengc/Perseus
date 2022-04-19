@@ -139,7 +139,7 @@ func (t *TokenBucket) Take(count int64) time.Duration {
 	return duration
 }
 
-// TakeMaxDuration 取出指定数量的令牌,若令牌数量不足则会等待maxWait时间
+// TakeMaxDuration 取出指定数量的令牌
 // 若超过maxWait时间,依然未满足要求,则返回要等待的时间和未完成标志false
 // 若完成要求,则返回0和true
 func (t *TokenBucket) TakeMaxDuration(count int64, maxWait time.Duration) (time.Duration, bool) {
@@ -167,6 +167,17 @@ func (t *TokenBucket) Wait(count int64) {
 	if d := t.Take(count); d > 0 {
 		t.clock.Sleep(d)
 	}
+}
+
+// WaitMaxDuration 取出指定数量的令牌
+// 若在指定的时间内能取出,则进行阻塞等待
+// 否则直接返回
+func (t *TokenBucket) WaitMaxDuration(count int64, maxWait time.Duration) bool {
+	duration, ok := t.TakeMaxDuration(count, maxWait)
+	if duration > 0 {
+		t.clock.Sleep(duration)
+	}
+	return ok
 }
 
 // Rate 返回令牌桶的速率
