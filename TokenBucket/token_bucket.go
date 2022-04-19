@@ -198,14 +198,17 @@ func NewTokenBucket(interval time.Duration, capacity int64) *TokenBucket {
 	return NewTokenBucketWithClock(interval, capacity, nil)
 }
 
+// NewTokenBucketWithClock 指定滴答的时间间隔,容量和时钟创建令牌桶
 func NewTokenBucketWithClock(interval time.Duration, capacity int64, clock Clock) *TokenBucket {
 	return NewTokenBucketWithQuantumAndClock(interval, capacity, 1, clock)
 }
 
+// NewTokenBucketWithRate 指定速率和容量创建令牌桶
 func NewTokenBucketWithRate(rate float64, capacity int64) *TokenBucket {
 	return NewTokenBucketWithRateAndClock(rate, capacity, nil)
 }
 
+// NewTokenBucketWithRateAndClock 指定速率,容量和时钟创建令牌桶
 func NewTokenBucketWithRateAndClock(rate float64, capacity int64, clock Clock) *TokenBucket {
 	t := NewTokenBucketWithQuantumAndClock(1, capacity, 1, clock)
 	for quantum := int64(1); quantum < 1<<50; quantum = nextQuantum(quantum) {
