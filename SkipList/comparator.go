@@ -7,9 +7,13 @@ package SkipList
 * @description: 内置类型比较大小
 *********************************************************/
 
-// BuiltinTypeComparator 内置类型比较大小; m和n为内置类型
+// BuiltinTypeComparator 内置类型比较大小; m和n为内置类型并且m和n必须为同类型
+// 非同类型数据比较会报错
 // 若m > n,则返回 1; 若m < n,则返回-1; 若m = n,则返回0
 func BuiltinTypeComparator(m, n interface{}) int {
+	// 若m与n类型不同会报错
+	// 可以获取其真实类型进行比较:reflect.TypeOf(m).Kind() == reflect.TypeOf(n).Kind()
+	// 这里不做比较,使用此接口要注意
 	if m == n {
 		return 0
 	}
