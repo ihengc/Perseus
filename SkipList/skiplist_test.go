@@ -19,13 +19,38 @@ func OptionFunc(option *Options) {
 	option.maxLevel = 16
 }
 
-func TestNewSkipListWithOption(t *testing.T) {
-	skipList := NewSkipListWithOption(OptionFunc)
-	t.Log(skipList.randomLevel())
-	t.Log(skipList.Len())
-	skipList.Put(1, 2)
-	t.Log(skipList.Len())
-	t.Log(skipList.Get(1))
-	t.Log(skipList.Del(1))
-	t.Log(skipList.Get(1))
+var skipList = NewSkipListWithOption(OptionFunc)
+
+func TestSkipList(t *testing.T) {
+	if skipList.Len() != 0 {
+		t.Fatal("len error")
+	}
+	for i := 0; i < 10; i++ {
+		skipList.Put(i, i+1)
+		if skipList.Len() != i+1 {
+			t.Fatal("put error")
+		}
+	}
+	if skipList.Len() != 10 {
+		t.Fatal("len error")
+	}
+	if skipList.Get(0) != 1 {
+		t.Fatal("get error")
+	}
+	if skipList.Get(9) != 10 {
+		t.Fatal("get error")
+	}
+	if skipList.Del(2) != true {
+		t.Fatal("del error")
+	}
+	if skipList.Len() != 9 {
+		t.Fatal("len error")
+	}
+	if skipList.Del(0) != true {
+		t.Fatal("del error")
+	}
+	if skipList.Len() != 8 {
+		t.Fatal("len error")
+	}
+
 }

@@ -64,5 +64,51 @@ func compareComplex128(m complex128, n complex128) int {
 
 // compareInt 比较int类型
 func compareInt(m, n interface{}) int {
-	return -1
+	switch m.(type) {
+	case uint8:
+		if m.(uint8) < n.(uint8) {
+			return -1
+		}
+	case uint16:
+		if m.(uint16) < n.(uint16) {
+			return -1
+		}
+	case uint32:
+		if m.(uint32) < n.(uint32) {
+			return -1
+		}
+	case uint64:
+		if m.(uint64) < n.(uint64) {
+			return -1
+		}
+	case uint:
+		if m.(uint) < n.(uint) {
+			return -1
+		}
+	case int8:
+		if m.(int8) < n.(int8) {
+			return -1
+		}
+	case int16:
+		if m.(int16) < n.(int16) {
+			return -1
+		}
+	case int32:
+		if m.(int32) < n.(int32) {
+			return -1
+		}
+	case int64:
+		if m.(int64) < n.(int64) {
+			return -1
+		}
+	case int:
+		if m.(int) < n.(int) {
+			return -1
+		}
+	case uintptr:
+		if m.(uintptr) < n.(uintptr) {
+			return -1
+		}
+	}
+	return 1
 }

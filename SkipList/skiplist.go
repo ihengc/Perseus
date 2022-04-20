@@ -88,20 +88,18 @@ func (skl *SkipList) randomLevel() int {
 // findPrevNodes 查询目的分数节点位置
 func (skl *SkipList) findPrevNodes(score interface{}) []*node {
 	prevNodes := make([]*node, skl.maxLevel)
-	current := skl.head
+	prev := skl.head
 	// 从顶层开始,逐层查找,查找每层的插入位置
 	for i := skl.maxLevel - 1; i >= 0; i-- {
-		if skl.head.next[i] != nil {
-			// 在当前层中查询目标分数
-			for next := current.next[i]; next != nil; next = next.next[i] {
-				// 遇到比当前分数大的节点就停止
-				if skl.comparator(next.score, score) >= 0 {
-					break
-				}
-				current = current.next[i]
+		// 在当前层中查询目标分数
+		for current := prev.next[i]; current != nil; current = current.next[i] {
+			// 遇到比当前分数大的节点就停止
+			if skl.comparator(current.score, score) >= 0 {
+				break
 			}
+			prev = prev.next[i]
 		}
-		prevNodes[i] = current
+		prevNodes[i] = prev
 	}
 	return prevNodes
 }
@@ -111,6 +109,7 @@ func (skl *SkipList) findPrevNodes(score interface{}) []*node {
 func (skl *SkipList) Put(score interface{}, data interface{}) {
 	skl.locker.Lock()
 	defer skl.locker.Unlock()
+
 	prevNodes := skl.findPrevNodes(score)
 	if prevNodes[0].next[0] != nil && skl.comparator(prevNodes[0].next[0].score, score) == 0 {
 		prevNodes[0].next[0].data = data
@@ -133,9 +132,13 @@ func (skl *SkipList) Put(score interface{}, data interface{}) {
 // 若分数在表中不存在,则返回nil
 // score 分数
 func (skl *SkipList) Get(score interface{}) interface{} {
+	skl.locker.Lock()
+	defer skl.locker.Unlock()
+
 	prev := skl.head
 	for i := skl.maxLevel - 1; i >= 0; i-- {
-		for current := prev.next[i]; current != nil; current = current.next[i] {
+		current := prev.next[i]
+		for ; current != nil; current = current.next[i] {
 			ret := skl.comparator(current.score, score)
 			if ret == 0 {
 				return current.data
@@ -143,7 +146,7 @@ func (skl *SkipList) Get(score interface{}) interface{} {
 			if ret > 0 {
 				break
 			}
-			prev = current.next[i]
+			prev = current
 		}
 	}
 	return nil
@@ -175,4 +178,15 @@ func (skl *SkipList) Len() int {
 	skl.locker.Lock()
 	defer skl.locker.Unlock()
 	return skl.len
+}
+
+// Scores 遍历所有的元素
+func (skl *SkipList) Scores() []interface{} {
+	var scores []interface{}
+	next := skl.head.next[0]
+	for next != nil {
+		scores = append(scores, next.score)
+		next = next.next[0]
+	}
+	return scores
 }
