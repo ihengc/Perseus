@@ -133,12 +133,41 @@ func (skl *SkipList) Put(score interface{}, data interface{}) {
 // 若分数在表中不存在,则返回nil
 // score 分数
 func (skl *SkipList) Get(score interface{}) interface{} {
+	prev := skl.head
+	for i := skl.maxLevel - 1; i >= 0; i-- {
+		for current := prev.next[i]; current != nil; current = current.next[i] {
+			ret := skl.comparator(current.score, score)
+			if ret == 0 {
+				return current.data
+			}
+			if ret > 0 {
+				break
+			}
+			prev = current.next[i]
+		}
+	}
 	return nil
 }
 
 // Del 删除
+// 成功删除返回true,否则返回false
 func (skl *SkipList) Del(score interface{}) bool {
-	return false
+	skl.locker.Lock()
+	defer skl.locker.Unlock()
+
+	prevNodes := skl.findPrevNodes(score)
+	node := prevNodes[0].next[0]
+	if node == nil {
+		return false
+	}
+	if node != nil && skl.comparator(node.score, score) != 0 {
+		return false
+	}
+	for i, n := range node.next {
+		prevNodes[i].next[i] = n
+	}
+	skl.len--
+	return true
 }
 
 // Len 元素个数

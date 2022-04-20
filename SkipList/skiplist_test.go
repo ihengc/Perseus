@@ -22,5 +22,10 @@ func OptionFunc(option *Options) {
 func TestNewSkipListWithOption(t *testing.T) {
 	skipList := NewSkipListWithOption(OptionFunc)
 	t.Log(skipList.randomLevel())
-	t.Log(len(skipList.head.next))
+	t.Log(skipList.Len())
+	skipList.Put(1, 2)
+	t.Log(skipList.Len())
+	t.Log(skipList.Get(1))
+	t.Log(skipList.Del(1))
+	t.Log(skipList.Get(1))
 }
