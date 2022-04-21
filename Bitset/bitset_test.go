@@ -9,23 +9,42 @@ import "testing"
 * @description:
 *********************************************************/
 
-var bitset = NewBitset()
+var bitset *Bitset
 
 func TestNewBitSet(t *testing.T) {
+	var err error
+	bitset, err = NewBitSetWithNBit(64)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if cap(bitset.data) != 2 {
+		t.Fatal("NewBitSetWithNBit Err")
+	}
 }
 
 func TestBitset_Set(t *testing.T) {
-	ok, err := bitset.Set(1)
+	ok, err := bitset.Set(64)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if !ok {
-		t.Fatal("set error")
+		t.Fatal("Set Err")
 	}
+}
 
-	v, err := bitset.Get(1)
+func TestBitset_Get(t *testing.T) {
+	ok, err := bitset.Get(64)
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Log(v)
+	if !ok {
+		t.Fatal("Get Err")
+	}
+	ok, err = bitset.Get(1213)
+	if err != nil {
+		t.Fatal("Get Err")
+	}
+	if ok {
+		t.Fatal("Get Err")
+	}
 }
