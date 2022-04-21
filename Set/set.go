@@ -37,18 +37,17 @@ type set struct {
 	elements map[interface{}]bool
 }
 
-func (s *set) IsSuperSetOf(subSet ISet) bool {
-	return subSet.IsSubsetOf(s)
-}
-
+// Add 添加一个元素到集合中
 func (s *set) Add(elem interface{}) {
 	s.elements[elem] = true
 }
 
+// Del 删除指定元素到集合中
 func (s *set) Del(elem interface{}) {
 	delete(s.elements, elem)
 }
 
+// In 判断给定的元素是否在集合中
 func (s *set) In(elem interface{}) bool {
 	if _, ok := s.elements[elem]; ok {
 		return true
@@ -56,6 +55,7 @@ func (s *set) In(elem interface{}) bool {
 	return false
 }
 
+// Elements 返回集合中的全部元素
 func (s *set) Elements() []interface{} {
 	elements := make([]interface{}, 0, len(s.elements))
 	for elem := range s.elements {
@@ -64,6 +64,7 @@ func (s *set) Elements() []interface{} {
 	return elements
 }
 
+// IsSubsetOf 当前集合是否为给定集合的子集
 func (s *set) IsSubsetOf(superSet ISet) bool {
 	if s.Len() > superSet.Len() {
 		return false
@@ -76,6 +77,12 @@ func (s *set) IsSubsetOf(superSet ISet) bool {
 	return true
 }
 
+// IsSuperSetOf 当前集合是否为给定集合的父集
+func (s *set) IsSuperSetOf(subSet ISet) bool {
+	return subSet.IsSubsetOf(s)
+}
+
+// Union 并集
 func (s *set) Union(set ISet) ISet {
 	unionSet := NewSet()
 	for _, elem := range s.Elements() {
@@ -87,6 +94,7 @@ func (s *set) Union(set ISet) ISet {
 	return unionSet
 }
 
+// Intersection 交集
 func (s *set) Intersection(set ISet) ISet {
 	intersectionSet := NewSet()
 	var minSet, maxSet ISet
@@ -105,6 +113,7 @@ func (s *set) Intersection(set ISet) ISet {
 	return intersectionSet
 }
 
+// Diff 差集
 func (s *set) Diff(set ISet) ISet {
 	diffSet := NewSet()
 	for _, elem := range s.Elements() {
@@ -115,11 +124,12 @@ func (s *set) Diff(set ISet) ISet {
 	return diffSet
 }
 
+// Len 返回集合中元素个数
 func (s *set) Len() int {
 	return len(s.elements)
 }
 
 // NewSet 创建一个集合实例
 func NewSet() ISet {
-	return &set{}
+	return &set{elements: make(map[interface{}]bool)}
 }
