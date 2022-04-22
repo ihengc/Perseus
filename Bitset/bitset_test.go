@@ -40,4 +40,13 @@ func TestBitset(t *testing.T) {
 	if ret {
 		t.Fatal("Get 64")
 	}
+	ret = bitset.Flip(128)
+	if !ret {
+		t.Fatal("Flip 128")
+	}
+	ret = bitset.Get(128)
+	if ret {
+		t.Fatal("Flip 128")
+	}
+
 }

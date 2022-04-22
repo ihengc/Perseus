@@ -82,6 +82,19 @@ func (b *Bitset) Del(bitIndex int) bool {
 	return true
 }
 
+// Flip 将指定索引处的位的值设置为其补码
+func (b *Bitset) Flip(bitIndex int) bool {
+	if bitIndex < 0 {
+		return false
+	}
+	index := b.index(bitIndex)
+	if index > cap(b.data) {
+		return false
+	}
+	b.data[index] ^= 1 << (bitIndex % 64)
+	return true
+}
+
 // Cap 获取容量
 func (b *Bitset) Cap() int {
 	return cap(b.data)
