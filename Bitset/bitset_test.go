@@ -9,42 +9,35 @@ import "testing"
 * @description:
 *********************************************************/
 
-var bitset *Bitset
-
-func TestNewBitSet(t *testing.T) {
-	var err error
-	bitset, err = NewBitSetWithNBit(64)
+func TestBitset(t *testing.T) {
+	bitset, err := NewBitSetWithNBit(64)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if cap(bitset.data) != 2 {
-		t.Fatal("NewBitSetWithNBit Err")
+	if bitset.Cap() != 2 {
+		t.Fatal("Cap must be 2")
 	}
-}
-
-func TestBitset_Set(t *testing.T) {
-	ok, err := bitset.Set(64)
-	if err != nil {
-		t.Fatal(err)
+	ret := bitset.Set(128)
+	if !ret {
+		t.Fatal("Set 128")
 	}
-	if !ok {
-		t.Fatal("Set Err")
+	if bitset.Cap() != 4 {
+		t.Fatal("Cap must be 4")
 	}
-}
-
-func TestBitset_Get(t *testing.T) {
-	ok, err := bitset.Get(64)
-	if err != nil {
-		t.Fatal(err)
+	ret = bitset.Set(64)
+	if !ret {
+		t.Fatal("Set 64")
 	}
-	if !ok {
-		t.Fatal("Get Err")
+	ret = bitset.Get(128)
+	if !ret {
+		t.Fatal("Get 128")
 	}
-	ok, err = bitset.Get(1213)
-	if err != nil {
-		t.Fatal("Get Err")
+	ret = bitset.Del(64)
+	if !ret {
+		t.Fatal("Del 64")
 	}
-	if ok {
-		t.Fatal("Get Err")
+	ret = bitset.Get(64)
+	if ret {
+		t.Fatal("Get 64")
 	}
 }
