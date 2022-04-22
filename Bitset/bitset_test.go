@@ -48,5 +48,6 @@ func TestBitset(t *testing.T) {
 	if ret {
 		t.Fatal("Flip 128")
 	}
+	t.Log(bitset.Count())
 
 }

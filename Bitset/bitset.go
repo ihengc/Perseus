@@ -22,10 +22,31 @@ import (
 	0: 保持原样
 *********************************************************/
 
+// IBitset Bitset接口
+type IBitset interface {
+	// Set 将指定位的值置为1
+	Set(bitIndex int) bool
+	// SetTo 将指定位的值置为指定的值(0或1)
+	SetTo(bitIndex int, val bool) bool
+	// RangeSet 将指定范围内的值置为1
+	RangeSet(startIndex int, endIndex int) bool
+	// Del 将指定位置的值置为0
+	Del(bitIndex int) bool
+	// DelAll 将所有位置为9
+	DelAll()
+	// RangeDel 将指定范围内的值置为0
+	RangeDel(startIndex int, endIndex int) bool
+	// IsEmpty 表中全部为0
+	IsEmpty() bool
+	// Count 位的值为1的数量
+	Count() int64
+}
+
 // Bitset 采用64位数组存放数据
-// 存放0-63位数据
+// 8个字节表
 type Bitset struct {
-	data []int64 // data 存放状态数据;以64bit为一个单位
+	data      []int64 // data 存放状态数据;以64bit为一个单位
+	usedCount int64   // usedCount 统计有效位的数量
 }
 
 // NewBitSetWithNBit 指定位数初始化 Bitset
@@ -63,6 +84,40 @@ func (b *Bitset) Set(bitIndex int) bool {
 	index := b.index(bitIndex)
 	b.expand(index)
 	b.data[index] |= 1 << (bitIndex % 64)
+	b.usedCount++
+	return true
+}
+
+// SetTo 设置指定位的值
+func (b *Bitset) SetTo(bitIndex int, val bool) bool {
+	if bitIndex < 0 {
+		return false
+	}
+	index := b.index(bitIndex)
+	b.expand(index)
+	if val {
+		b.data[index] |= 1 << (bitIndex % 64)
+	} else {
+		b.data[index] &= 0 << (bitIndex % 64)
+	}
+	b.usedCount++
+	return true
+}
+
+// RangeSet 范围设置为1
+// 若startIndex或endIndex为负数,则返回false,表示未设置成功
+// 若startIndex >= endIndex,则返回false
+// startIndex = endIndex,不应该使用此接口,应该使用 Set 接口
+// 若设置成功,则返回true
+func (b *Bitset) RangeSet(startIndex int, endIndex int) bool {
+	if startIndex < 0 || endIndex < 0 || endIndex <= startIndex {
+		return false
+	}
+	for bitIndex := startIndex; bitIndex <= endIndex; bitIndex++ {
+		index := b.index(bitIndex)
+		b.expand(index)
+		b.data[index] |= 1 << (bitIndex % 64)
+	}
 	return true
 }
 
@@ -90,7 +145,36 @@ func (b *Bitset) Del(bitIndex int) bool {
 		return false
 	}
 	b.data[index] ^= 1 << (bitIndex % 64)
+	b.usedCount--
 	return true
+}
+
+// RangeDel 将指定范围内的值置为0
+func (b *Bitset) RangeDel(startIndex, endIndex int) bool {
+	if startIndex < 0 || endIndex < 0 || startIndex >= endIndex {
+		return false
+	}
+	// 指定的范围超过表的长度,不执行置0操作,(这里可以实现为全部置0,因为已经有DelAll接口
+	// 所以实现全部置0
+	// 这里时间复杂度为O(endIndex - startIndex)
+	for bitIndex := startIndex; bitIndex <= endIndex; bitIndex++ {
+		index := b.index(bitIndex)
+		if index >= cap(b.data) {
+			return false
+		}
+	}
+	for bitIndex := startIndex; bitIndex <= endIndex; bitIndex++ {
+		b.Del(bitIndex)
+	}
+	return true
+}
+
+// DelAll 将所有位置为0
+func (b *Bitset) DelAll() {
+	for i := 0; i < len(b.data); i++ {
+		b.data[i] &= 0
+	}
+	b.usedCount = 0
 }
 
 // Flip 将指定索引处的位的值设置为其补码
@@ -104,6 +188,33 @@ func (b *Bitset) Flip(bitIndex int) bool {
 	}
 	b.data[index] ^= 1 << (bitIndex % 64)
 	return true
+}
+
+// RangeFlip 将指定范围内的位的值反转
+func (b *Bitset) RangeFlip(startIndex, endIndex int) bool {
+	if startIndex < 0 || endIndex < 0 || startIndex >= endIndex {
+		return false
+	}
+	for bitIndex := startIndex; bitIndex <= endIndex; bitIndex++ {
+		index := b.index(bitIndex)
+		if index >= cap(b.data) {
+			return false
+		}
+	}
+	for bitIndex := startIndex; bitIndex <= endIndex; bitIndex++ {
+		b.Flip(bitIndex)
+	}
+	return true
+}
+
+// Count 统计有效位的数量
+func (b *Bitset) Count() int64 {
+	return b.usedCount
+}
+
+// IsEmpty 是否有1的位
+func (b *Bitset) IsEmpty() bool {
+	return b.usedCount == 0
 }
 
 // Cap 获取容量
