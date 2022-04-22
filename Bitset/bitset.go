@@ -114,9 +114,7 @@ func (b *Bitset) RangeSet(startIndex int, endIndex int) bool {
 		return false
 	}
 	for bitIndex := startIndex; bitIndex <= endIndex; bitIndex++ {
-		index := b.index(bitIndex)
-		b.expand(index)
-		b.data[index] |= 1 << (bitIndex % 64)
+		b.Set(bitIndex)
 	}
 	return true
 }
@@ -165,6 +163,7 @@ func (b *Bitset) RangeDel(startIndex, endIndex int) bool {
 	}
 	for bitIndex := startIndex; bitIndex <= endIndex; bitIndex++ {
 		b.Del(bitIndex)
+
 	}
 	return true
 }
